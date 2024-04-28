@@ -22,7 +22,6 @@ class _RegistrationPageState extends State<RegistrationPage> {
   String? loginError = '';
   bool isValidation = false;
   bool isObcsure = true;
-  bool isPasswordValid = false;
 
   @override
   void dispose() {
