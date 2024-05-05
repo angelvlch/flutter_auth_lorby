@@ -5,4 +5,7 @@ abstract class AppText {
     'Минимум 1 цифра',
     'Минимум 1 спецсимвол (!, ", #, \$...)',
   ];
+  static const login = 'Вэлком бэк!';
+  static const account = 'У меня еще нет аккаунта';
+  static const error = 'Неверный логин или пароль';
 }

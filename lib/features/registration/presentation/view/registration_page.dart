@@ -18,10 +18,14 @@ class _RegistrationPageState extends State<RegistrationPage> {
   final emailController = TextEditingController();
   final loginController = TextEditingController();
   final passwordController = TextEditingController();
-  String? emailError = '';
-  String? loginError = '';
+  final repeatedPasswordController = TextEditingController();
+  String? emailError;
+  String? loginError;
+  String? repeatedPasswordError;
   bool isValidation = false;
   bool isObcsure = true;
+  bool isObscureRepeatedPassword = true;
+  bool isPasswordValid = false;
 
   @override
   void dispose() {
@@ -55,7 +59,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
             const SizedBox(height: 6),
             _buildValidationRule(),
             const SizedBox(height: 14),
-            //  _buildRepeatPasswordField(),
+            _buildRepeatPasswordField(),
             const SizedBox(height: 24),
             _buildButtonFurther(),
           ]),
@@ -80,19 +84,10 @@ class _RegistrationPageState extends State<RegistrationPage> {
       controller: emailController,
       text: 'Введи адрес почты',
       onChanged: (value) {
-        if (emailController.text.contains('@') &&
-            emailController.text.contains('.')) {
-          setState(() {
-            emailError = null;
-          });
-        } else if (emailController.text.isEmpty) {
-          setState(() {
-            emailError = 'Обязательное поле';
-          });
+        if (value.contains('@') && value.contains('.')) {
+          emailError = null;
         } else {
-          setState(() {
-            emailError = 'Неверный формат email';
-          });
+          emailError = 'Неверный формат email';
         }
         isValidationEdit();
       },
@@ -107,18 +102,10 @@ class _RegistrationPageState extends State<RegistrationPage> {
         text: 'Придумай логин',
         error: loginError,
         onChanged: (value) {
-          if (RegExp('[a-zA-Z]').hasMatch(loginController.text)) {
-            setState(() {
-              loginError = null;
-            });
-          } else if (loginController.text.isEmpty) {
-            setState(() {
-              loginError = 'Обязательное поле';
-            });
+          if (RegExp('^[a-zA-Z]+\$').hasMatch(value)) {
+            loginError = null;
           } else {
-            setState(() {
-              loginError = 'Недопустимые символы';
-            });
+            loginError = 'Недопустимые символы';
           }
           isValidationEdit();
         });
@@ -138,7 +125,9 @@ class _RegistrationPageState extends State<RegistrationPage> {
     setState(() {
       isValidation = emailError == null &&
           loginError == null &&
-          passwordController.text.isNotEmpty;
+          passwordController.text.isNotEmpty &&
+          isPasswordValid &&
+          repeatedPasswordError == null;
     });
   }
 
@@ -148,83 +137,96 @@ class _RegistrationPageState extends State<RegistrationPage> {
       text: 'Создай пароль',
       onChanged: (value) {
         BlocProvider.of<PasswordValidation>(context)
-            .add(CheckValidationPassword(password: passwordController.text));
+            .add(CheckValidationPassword(password: value));
         isValidationEdit();
       },
       isObcsure: isObcsure,
-      suffixIcon: IconButton(
-        icon: Icon(
-          !isObcsure ? Icons.remove_red_eye_outlined : Icons.remove_red_eye,
-          color: AppColors.darkGrey,
-        ),
-        onPressed: () {
-          setState(() {
-            isObcsure = !isObcsure;
-          });
-        },
+      suffixIcon: _buildSuffixIcon(),
+    );
+  }
+
+  IconButton _buildSuffixIcon() {
+    return IconButton(
+      icon: Icon(
+        !isObcsure ? Icons.remove_red_eye_outlined : Icons.remove_red_eye,
+        color: AppColors.darkGrey,
       ),
+      onPressed: () {
+        setState(() {
+          isObcsure = !isObcsure;
+        });
+      },
     );
   }
 
   Widget _buildValidationRule() {
     return BlocBuilder<PasswordValidation, PasswordState>(
       builder: (context, state) {
-        if (state is PasswordValidationState) {
-          final rules = state.validRules;
-          /*   setState(() {
-            isPasswordValid = rules.every((element) => element == true);
-          }); */
-          //  isValidationEdit();
-
-          return Column(
-            mainAxisSize: MainAxisSize.min,
-            children: List.generate(AppText.validationRule.length, (index) {
-              return Row(
-                children: [
-                  Icon(Icons.circle,
-                      size: 3,
-                      color: rules[index] ? Colors.green : AppColors.darkGrey),
-                  const SizedBox(width: 7),
-                  Text(
-                      '${AppText.validationRule[index]}${rules[index] ? ' ✅' : ''}',
-                      style: AppFonts.s12w500.copyWith(
-                          color: rules[index]
-                              ? Colors.green
-                              : AppColors.darkGrey)),
-                ],
-              );
-            }),
-          );
+        if (state is PasswordValidationState || state is Initial) {
+          final rules =
+              state is PasswordValidationState ? state.validRules : null;
+          Future.delayed(Duration.zero, () {
+            if (rules != null) {
+              setState(() {
+                isPasswordValid = rules.every((element) => element == true);
+              });
+            }
+            isValidationEdit();
+          });
+          return _buildValidationItems(rules);
         }
-        return Column(
-          children: List.generate(AppText.validationRule.length, (index) {
-            return Row(
-              children: [
-                const Icon(
-                  Icons.circle,
-                  size: 3,
-                  color: AppColors.darkGrey,
-                ),
-                const SizedBox(width: 7),
-                Text(AppText.validationRule[index],
-                    style:
-                        AppFonts.s12w500.copyWith(color: AppColors.darkGrey)),
-              ],
-            );
-          }),
-        );
+        return const SizedBox();
       },
     );
   }
 
-/* 
-  _buildLoginTextField() {}
+  Column _buildValidationItems(List<bool>? rules) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: List.generate(AppText.validationRule.length, (index) {
+        return Row(
+          children: [
+            Icon(
+              Icons.circle,
+              size: 3,
+              color: _createItemColor(rules, index),
+            ),
+            const SizedBox(width: 7),
+            Text(
+              _createItemsText(index, rules),
+              style: AppFonts.s12w500.copyWith(
+                color: _createItemColor(rules, index),
+              ),
+            ),
+          ],
+        );
+      }),
+    );
+  }
 
-  _buildValidationRule() {}
+  Color _createItemColor(List<bool>? rules, int index) {
+    return rules is List<bool>
+        ? (rules[index] ? Colors.green : AppColors.red)
+        : AppColors.darkGrey;
+  }
 
-  _buildPasswordField() {}
+  String _createItemsText(int index, List<bool>? rules) =>
+      '${AppText.validationRule[index]}${rules is List<bool> ? (rules[index] ? ' ✅' : '❌') : ''}';
 
-  _buildRepeatPasswordField() {}
-
-  _buildButtonFurther() {} */
+  Widget _buildRepeatPasswordField() {
+    return CustomTextField(
+      controller: repeatedPasswordController,
+      text: 'Повтори пароль',
+      isObcsure: true,
+      suffixIcon: _buildSuffixIcon(),
+      onChanged: (value) {
+        if (value != passwordController.text) {
+          repeatedPasswordError = 'Пароли не совпадают!';
+        } else {
+          repeatedPasswordError = null;
+        }
+      },
+      error: repeatedPasswordError,
+    );
+  }
 }

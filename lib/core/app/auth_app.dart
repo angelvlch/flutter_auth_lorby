@@ -1,4 +1,5 @@
 import 'package:auth_lorby/core/route/routes.dart';
+import 'package:auth_lorby/features/authorization/presentation/view/authorization.dart';
 import 'package:auth_lorby/features/registration/presentation/bloc/password_validation/password_validation_bloc.dart';
 import 'package:auth_lorby/features/registration/presentation/view/registration_page.dart';
 import 'package:flutter/material.dart';
@@ -9,7 +10,7 @@ class AuthApp extends StatelessWidget {
 
   Map<String, WidgetBuilder> get _routes {
     return {
-      //  Routes.authPage: (context) =>
+      Routes.authPage: (context) => const AuthorizationPage(),
       Routes.registrationPage: (context) => const RegistrationPage(),
     };
   }
@@ -19,6 +20,14 @@ class AuthApp extends StatelessWidget {
     return BlocProvider<PasswordValidation>(
       create: (context) => PasswordValidation(),
       child: MaterialApp(
+        theme: ThemeData(
+          elevatedButtonTheme: ElevatedButtonThemeData(
+            style: ElevatedButton.styleFrom(
+              foregroundColor: Colors.white, // Измените цвет текста кнопки
+              backgroundColor: Colors.red, // Измените цвет фона кнопки
+            ),
+          ),
+        ),
         routes: _routes,
       ),
     );

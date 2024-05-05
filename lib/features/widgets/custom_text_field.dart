@@ -24,11 +24,13 @@ class CustomTextField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return TextField(
+    return TextFormField(
+      // validator: ,
       onChanged: onChanged,
       controller: controller,
       keyboardType: keyboardType,
       obscureText: isObcsure,
+      obscuringCharacter: '*',
       decoration: InputDecoration(
         suffixIcon: suffixIcon,
         errorText: error,

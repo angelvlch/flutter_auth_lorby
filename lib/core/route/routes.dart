@@ -1,5 +1,5 @@
 class Routes {
   Routes._();
-  //static const authPage = '/';
-  static const registrationPage = '/';
+  static const authPage = '/';
+  static const registrationPage = '/registration';
 }
