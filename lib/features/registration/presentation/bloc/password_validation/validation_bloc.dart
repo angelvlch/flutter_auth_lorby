@@ -1,17 +1,17 @@
 import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-part 'password_validation_state.dart';
-part 'password_validation_event.dart';
+part 'validation_state.dart';
+part 'validation_event.dart';
 
-class PasswordValidation extends Bloc<PasswordEvent, PasswordState> {
-  PasswordValidation() : super(Initial()) {
-    on<CheckValidationPassword>(_checkPassword);
-    // on<ConfrimValidation>(_confirmValidation);
+class ValidationBloc extends Bloc<ValidationEvent, ValidationState> {
+  ValidationBloc() : super(Initial(validationModel: ValidationModel())) {
+    on<EmailEvent>(_checkEmail);
+    on<LoginEvent>(_checkLogin);
   }
 
-  FutureOr<void> _checkPassword(
-      CheckValidationPassword event, Emitter<PasswordState> emit) {
+  /*  FutureOr<void> _checkPassword(
+      EmailEvent event, Emitter<ValidationState> emit) {
     final password = event.password;
     bool isLenght = false,
         isLowerAndUpperCase = false,
@@ -38,8 +38,30 @@ class PasswordValidation extends Bloc<PasswordEvent, PasswordState> {
       isMinOneSpecSymbol,
     ]));
   }
-
+ */
   /* FutureOr<void> _confirmValidation(ConfrimValidation event, Emitter<PasswordState> emit) {
     emit(ValidationResults(isValid: event.isValid));
   } */
+
+  void _checkEmail(EmailEvent event, Emitter<ValidationState> emit) {
+    final emailError = event.emailError;
+    emit(
+      ValidationState(
+        validationModel: state.validationModel.copyWith(
+          isEmailValid: emailError == null ? true : false,
+        ),
+      ),
+    );
+  }
+
+  void _checkLogin(LoginEvent event, Emitter<ValidationState> emit) {
+    final loginError = event.loginError;
+    emit(
+      ValidationState(
+        validationModel: state.validationModel.copyWith(
+          isEmailValid: loginError == null ? true : false,
+        ),
+      ),
+    );
+  }
 }

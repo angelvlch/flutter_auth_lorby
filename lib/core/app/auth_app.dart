@@ -1,6 +1,6 @@
 import 'package:auth_lorby/core/route/routes.dart';
 import 'package:auth_lorby/features/authorization/presentation/view/authorization.dart';
-import 'package:auth_lorby/features/registration/presentation/bloc/password_validation/password_validation_bloc.dart';
+import 'package:auth_lorby/features/registration/presentation/bloc/password_validation/validation_bloc.dart';
 import 'package:auth_lorby/features/registration/presentation/view/registration_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -17,8 +17,10 @@ class AuthApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider<PasswordValidation>(
-      create: (context) => PasswordValidation(),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(create: (context) => ValidationBloc()),
+      ],
       child: MaterialApp(
         theme: ThemeData(
           elevatedButtonTheme: ElevatedButtonThemeData(

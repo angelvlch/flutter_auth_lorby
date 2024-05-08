@@ -1,7 +1,9 @@
+import 'dart:math';
+
 import 'package:auth_lorby/core/constants/app_colors.dart';
 import 'package:auth_lorby/core/constants/app_fonts.dart';
 import 'package:auth_lorby/core/constants/app_text.dart';
-import 'package:auth_lorby/features/registration/presentation/bloc/password_validation/password_validation_bloc.dart';
+import 'package:auth_lorby/features/registration/presentation/bloc/password_validation/validation_bloc.dart';
 import 'package:auth_lorby/features/widgets/custom_button.dart';
 import 'package:auth_lorby/features/widgets/custom_text_field.dart';
 import 'package:flutter/material.dart';
@@ -57,11 +59,11 @@ class _RegistrationPageState extends State<RegistrationPage> {
             const SizedBox(height: 14),
             _buildPasswordField(),
             const SizedBox(height: 6),
-            _buildValidationRule(),
+            //   _buildValidationRule(),
             const SizedBox(height: 14),
             _buildRepeatPasswordField(),
             const SizedBox(height: 24),
-            _buildButtonFurther(),
+            _buildButton(),
           ]),
         ),
       ),
@@ -89,7 +91,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
         } else {
           emailError = 'Неверный формат email';
         }
-        isValidationEdit();
+        context.read<ValidationBloc>().add(EmailEvent(emailError: emailError));
       },
       error: emailError,
       keyboardType: TextInputType.emailAddress,
@@ -104,14 +106,18 @@ class _RegistrationPageState extends State<RegistrationPage> {
         onChanged: (value) {
           if (RegExp('^[a-zA-Z]+\$').hasMatch(value)) {
             loginError = null;
+          } else if (value == '') {
+            loginError = 'Обязательно поле!';
           } else {
             loginError = 'Недопустимые символы';
           }
-          isValidationEdit();
+          /*  context
+              .read<ValidationBloc>()
+              .add(LoginEvent(loginError: loginError)); */
         });
   }
 
-  Widget _buildButtonFurther() {
+  Widget _buildButton() {
     return SizedBox(
       width: double.infinity,
       child: CustomButton(
@@ -136,8 +142,8 @@ class _RegistrationPageState extends State<RegistrationPage> {
       controller: passwordController,
       text: 'Создай пароль',
       onChanged: (value) {
-        BlocProvider.of<PasswordValidation>(context)
-            .add(CheckValidationPassword(password: value));
+        BlocProvider.of<ValidationBloc>(context)
+            .add(PasswordEvent(password: value));
         isValidationEdit();
       },
       isObcsure: isObcsure,
@@ -160,9 +166,9 @@ class _RegistrationPageState extends State<RegistrationPage> {
   }
 
   Widget _buildValidationRule() {
-    return BlocBuilder<PasswordValidation, PasswordState>(
+    return BlocBuilder<ValidationBloc, ValidationState>(
       builder: (context, state) {
-        if (state is PasswordValidationState || state is Initial) {
+        /*       if (state is PasswordValidationState || state is Initial) {
           final rules =
               state is PasswordValidationState ? state.validRules : null;
           Future.delayed(Duration.zero, () {
@@ -174,7 +180,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
             isValidationEdit();
           });
           return _buildValidationItems(rules);
-        }
+        } */
         return const SizedBox();
       },
     );
