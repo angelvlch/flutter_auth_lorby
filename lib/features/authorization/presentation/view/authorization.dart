@@ -2,10 +2,13 @@ import 'package:auth_lorby/core/constants/app_colors.dart';
 import 'package:auth_lorby/core/constants/app_fonts.dart';
 import 'package:auth_lorby/core/constants/app_images.dart';
 import 'package:auth_lorby/core/constants/app_text.dart';
+import 'package:auth_lorby/core/routes/routes.dart';
+import 'package:auth_lorby/features/authorization/presentation/bloc/authorization_bloc.dart';
 import 'package:auth_lorby/features/widgets/custom_button.dart';
 import 'package:auth_lorby/features/widgets/custom_text_field.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:flutter_svg/flutter_svg.dart';
 
@@ -59,13 +62,7 @@ class _AuthorizationPageState extends State<AuthorizationPage> {
                   suffixIcon: _buildSuffixIcon(),
                 ),
                 const SizedBox(height: 24),
-                SizedBox(
-                  width: double.infinity,
-                  child: CustomButton(
-                    text: 'Войти',
-                    onTap: _onTap,
-                  ),
-                ),
+                _listenErrorMessage(),
                 const SizedBox(height: 20),
                 Padding(
                   padding: const EdgeInsets.symmetric(
@@ -73,39 +70,40 @@ class _AuthorizationPageState extends State<AuthorizationPage> {
                     vertical: 13,
                   ),
                   child: GestureDetector(
-                    onTap: () => Navigator.pushNamed(context, '/registration'),
+                    onTap: () =>
+                        Navigator.pushNamed(context, Routes.registrationPage),
                     child: const Text(AppText.account, style: AppFonts.s16w500),
                   ),
                 ),
               ],
             ),
-            isLogIn ? const SizedBox() : _showErrorMessage(),
           ],
         ),
       )),
     );
   }
 
-  Container _showErrorMessage() {
-    return Container(
-      margin: const EdgeInsets.only(top: 40),
-      width: double.infinity,
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(12),
-        color: AppColors.white,
-        border: Border.all(
-          color: AppColors.red,
-          width: 2,
-        ),
-      ),
-      child: Text(
+  void _showErrorMessage() {
+    final snackBar = SnackBar(
+      content: Text(
         AppText.error,
-        style: AppFonts.s16w500.copyWith(
-          color: AppColors.red,
-        ),
+        style: AppFonts.s16w500.copyWith(color: AppColors.red),
+      ),
+      backgroundColor: Colors.white,
+      elevation: 0,
+      behavior: SnackBarBehavior.floating,
+      dismissDirection: DismissDirection.up,
+      shape: RoundedRectangleBorder(
+        side: const BorderSide(color: AppColors.red),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      margin: EdgeInsets.only(
+        bottom: MediaQuery.sizeOf(context).height * 0.9,
+        left: 10,
+        right: 10,
       ),
     );
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
 
   IconButton _buildSuffixIcon() {
@@ -123,11 +121,31 @@ class _AuthorizationPageState extends State<AuthorizationPage> {
   }
 
   void _onTap() {
-    if (loginController.text != '' && passwordController.text != '') {
-    } else {
-      setState(() {
-        isLogIn = false;
-      });
-    }
+    BlocProvider.of<AuthorizationBloc>(context).add(
+      AuthorizationSubmit(
+        email: loginController.text,
+        password: passwordController.text,
+      ),
+    );
+  }
+
+  Widget _listenErrorMessage() {
+    return BlocListener<AuthorizationBloc, AuthorizationState>(
+      listener: (context, state) {
+        if (state is AuthorizationDone) {
+        }
+        // дописать переход на главную страницу
+        else {
+          _showErrorMessage();
+        }
+      },
+      child: SizedBox(
+        width: double.infinity,
+        child: CustomButton(
+          text: 'Войти',
+          onTap: _onTap,
+        ),
+      ),
+    );
   }
 }

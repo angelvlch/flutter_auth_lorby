@@ -31,10 +31,16 @@ class ValidationModel {
     this.hasSpecialSymb,
   });
 
-/* bool get isPasswordValid {
-  return hasLenght >=
-}
- */
+  bool get isAllFieldsValid {
+    return isEmailValid != null &&
+        isLoginValid != null &&
+        isPasswordSimilar != null &&
+        hasDigit != null &&
+        hasLenght != null &&
+        hasSpecialSymb != null &&
+        hasUpperLetters != null;
+  }
+
   ValidationModel copyWith({
     bool? isEmailValid,
     bool? isLoginValid,

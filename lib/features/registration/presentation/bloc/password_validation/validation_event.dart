@@ -20,8 +20,8 @@ class PasswordEvent extends ValidationEvent {
   PasswordEvent({required this.password});
 }
 
-class RepeatedPasswordEvent extends ValidationEvent {
-  final String repeatedPassword;
+class RePasswordEvent extends ValidationEvent {
+  final String? repeatedPasswordError;
 
-  RepeatedPasswordEvent({required this.repeatedPassword});
+  RePasswordEvent({required this.repeatedPasswordError});
 }

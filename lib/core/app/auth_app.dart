@@ -1,4 +1,7 @@
-import 'package:auth_lorby/core/route/routes.dart';
+import 'package:auth_lorby/core/injection/di.dart';
+import 'package:auth_lorby/core/routes/routes.dart';
+import 'package:auth_lorby/features/authorization/domain/use_case/auth_use_case.dart';
+import 'package:auth_lorby/features/authorization/presentation/bloc/authorization_bloc.dart';
 import 'package:auth_lorby/features/authorization/presentation/view/authorization.dart';
 import 'package:auth_lorby/features/registration/presentation/bloc/password_validation/validation_bloc.dart';
 import 'package:auth_lorby/features/registration/presentation/view/registration_page.dart';
@@ -20,13 +23,16 @@ class AuthApp extends StatelessWidget {
     return MultiBlocProvider(
       providers: [
         BlocProvider(create: (context) => ValidationBloc()),
+        BlocProvider(
+            create: (context) =>
+                AuthorizationBloc(getIt<AuthorizationUseCase>())),
       ],
       child: MaterialApp(
         theme: ThemeData(
           elevatedButtonTheme: ElevatedButtonThemeData(
             style: ElevatedButton.styleFrom(
-              foregroundColor: Colors.white, // Измените цвет текста кнопки
-              backgroundColor: Colors.red, // Измените цвет фона кнопки
+              foregroundColor: Colors.white,
+              backgroundColor: Colors.red,
             ),
           ),
         ),
